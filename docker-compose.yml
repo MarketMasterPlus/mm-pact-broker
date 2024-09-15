@@ -1,0 +1,34 @@
+services:
+  postgres:
+    image: postgres:12
+    container_name: mm-pact-broker-db
+    environment:
+      POSTGRES_DB: pact_broker
+      POSTGRES_USER: pact_broker
+      POSTGRES_PASSWORD: pact_broker
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - marketmaster-network
+
+  pact_broker:
+    image: pactfoundation/pact-broker
+    container_name: mm-pact-broker
+    depends_on:
+      - postgres
+    ports:
+      - "9292:9292"
+    environment:
+      PACT_BROKER_DATABASE_URL: postgres://pact_broker:pact_broker@postgres/pact_broker
+      PACT_BROKER_LOG_LEVEL: INFO
+      PACT_BROKER_BASIC_AUTH_USERNAME: 'pact'
+      PACT_BROKER_BASIC_AUTH_PASSWORD: 'password'
+    networks:
+      - marketmaster-network
+
+networks:
+  marketmaster-network:
+    external: true
+
+volumes:
+  postgres_data:
